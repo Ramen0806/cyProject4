@@ -5,7 +5,7 @@ class TGDynamicTables {
     }
 
 
-     getTableHeader(){
+     getTableHeaders(){
         return cy.get('#product_table > thead > tr >th')
      }
 
@@ -29,9 +29,12 @@ class TGDynamicTables {
      clickClosePopUpBtn() {
          this.getClosePopUpButton().click()
      }
-
      getTotal(){
-        return cy.get('.pt-6')
+      return cy.get('#total_amount')
+   }
+
+     getTable(){
+        return cy.get('#product_table')
      }
 
 }
