@@ -1,12 +1,12 @@
 
-const {  Then } = require('@badeball/cypress-cucumber-preprocessor')
+const { When, Then } = require('@badeball/cypress-cucumber-preprocessor')
 const TGDynamicTables = require('../../pages/TGDynamicTable')
 
 const dynamicTables = new TGDynamicTables()
 
 
-Then(/^the user should see the “Inventory” heading$/, () => {
-	dynamicTables.getPageHeading().should('be.visible')
+Then(/^the user should see the "([^"]*)" heading$/, (heading) => {
+	dynamicTables.getPageHeading().should('have.text',heading)
 })
 
 
@@ -20,13 +20,10 @@ Then(/^the user should see the table with the headers below$/, (dataTable) => {
 
 
 Then(/^the user should see the table with the rows below$/, (dataTable) => {
-	const rows = dataTable.rawTable
+	const rows = dataTable.rawTable.flat()
 
-	rows.forEach(row => {
-	cy.get('#product_table tbody').contains('td', row[0])
-      .next().should('contain', row[1])
-      .next().should('contain', row[2])
-      .next().should('contain', row[3])
+	dynamicTables.getTableRows().each((el,index) => {
+		cy.wrap(el).should('contain',rows[index])
 	})
 })
 
@@ -41,3 +38,45 @@ Then(/^the user should see the "([^"]*)" text displayed$/, (total) => {
 	dynamicTables.getTotal().should('contain', total)
 })
 
+
+
+When(/^the user clicks on the “ADD PRODUCT” button$/, () => {
+	dynamicTables.clickAddProductBtnByText()
+})
+
+
+Then(/^the user should see the “Add New Product” modal with its heading$/, () => {
+	dynamicTables.addNewProductPopUp().should('be.visible')
+})
+
+
+Then(/^the user should see the label$/, (dataTable) => {
+	const label = dataTable.rawTable.flat()
+	dynamicTables.getPopUpLabels().each((el,index) => {
+		cy.wrap(el).should('have.text',label[index])
+	})
+})
+
+
+Then(/^the user should see the input box is enabled$/, (dataTable) => {
+	const inputs = dataTable.rawTable.flat()
+
+	dynamicTables.getPopupInputs().each((el,index) => {
+		cy.wrap(el).should('be.enabled',inputs[index])
+	})
+})
+
+
+Then(/^the user should see the button is enabled$/, () => {
+	dynamicTables.getClosePopUpButton().should('be.enabled') &&
+	dynamicTables.getSubmit().should('be.enabled')
+})
+
+
+When(/^the user clicks on the “X” button$/, () => {
+	dynamicTables.clickClosePopUpBtn()
+})
+
+Then(/^the user should not see the “Add New Product” modal$/, () => {
+	dynamicTables.addNewProductPopUp().should('not.exist')
+})
